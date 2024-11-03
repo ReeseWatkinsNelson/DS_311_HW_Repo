@@ -1,0 +1,406 @@
+<div class="chunk" id="unnamed-chunk-1"><div class="rcode"><div class="source"><pre class="knitr r">---
+  title: <span class="hl sng">&quot;DS311 - R Lab Assignment&quot;</span>
+author: <span class="hl sng">&quot;Reese Watkins-Nelson&quot;</span>
+date: <span class="hl sng">&quot;`r <span class="hl kwd">Sys.Date</span>()`&quot;</span>
+output: 
+  html_document:
+  theme: united
+highlight: tango
+df_print: paged
+---
+  
+```{r setup, include=<span class="hl kwa">FALSE</span>}
+knitr::opts_chunk$<span class="hl kwd">set</span>(echo = <span class="hl kwa">TRUE</span>)
+```
+
+<span class="hl com">## R Assignment 1</span>
+
+* In this assignment, we are going to apply some of the build <span class="hl kwa">in</span> data set <span class="hl kwa">in</span> R <span class="hl kwa">for</span> descriptive statistics analysis.
+* To earn full grade <span class="hl kwa">in</span> this assignment, students need to complete the coding tasks <span class="hl kwa">for</span> each question to get the result.
+* After finished all the questions, knit the document into HTML format <span class="hl kwa">for</span> submission.
+
+<span class="hl com">### Question 1</span>
+
+Using the **mtcars** data set <span class="hl kwa">in</span> R, please answer the following questions.
+
+```{r}
+<span class="hl com"># Loading the data</span>
+<span class="hl kwd">data</span>(mtcars)
+
+<span class="hl com"># Head of the data set</span>
+<span class="hl kwd">head</span>(mtcars)
+```
+
+a. Report the number of variables and observations <span class="hl kwa">in</span> the data set.
+
+```{r}
+<span class="hl com"># Enter your code here!</span>
+Size = <span class="hl kwd">dim</span>(mtcars)
+<span class="hl kwd">print</span>(Size)
+<span class="hl com"># Answer:</span>
+variables &lt;- <span class="hl kwd">ncol</span>(mtcars)
+observations &lt;- <span class="hl kwd">nrow</span>(mtcars)
+
+<span class="hl kwd">print</span>(<span class="hl kwd">paste</span>(<span class="hl sng">&quot;There are total of&quot;</span>, variables, <span class="hl sng">&quot;variables and&quot;</span>, observations, <span class="hl sng">&quot;observations <span class="hl kwa">in</span> this data set.&quot;</span>))
+````
+
+
+
+b. Print the summary statistics of the data set and report how many discrete and continuous variables are <span class="hl kwa">in</span> the data set.
+
+```{r}
+<span class="hl com"># Enter your code here!</span>
+<span class="hl kwd">summary</span>(mtcars)
+
+classify_data &lt;- <span class="hl kwd"><span class="hl kwa">function</span></span>(x) {
+  <span class="hl kwd"><span class="hl kwa">if</span></span> (<span class="hl kwd">is.numeric</span>(x)) {
+    <span class="hl kwd"><span class="hl kwa">if</span></span> (<span class="hl kwd">all</span>(x == <span class="hl kwd">floor</span>(x))) {
+      <span class="hl kwd">return</span>(<span class="hl sng">&quot;Discrete&quot;</span>) }
+    <span class="hl kwa">else</span> {
+      <span class="hl kwd">return</span>(<span class="hl sng">&quot;Continuous&quot;</span>) }
+  } } 
+Discrete_or_Cont &lt;- <span class="hl kwd">sapply</span>(mtcars, classify_data)
+frequency &lt;- <span class="hl kwd">table</span>(Discrete_or_Cont)
+
+num_discrete &lt;- frequency[<span class="hl sng">&quot;Discrete&quot;</span>]
+num_continuous &lt;- frequency[<span class="hl sng">&quot;Continuous&quot;</span>]
+
+<span class="hl com"># Answer:</span>
+<span class="hl kwd">print</span>(<span class="hl sng">&quot;There are _____ discrete variables and _____ continuous variables <span class="hl kwa">in</span> this data set.&quot;</span>)
+```
+
+c. Calculate the mean, variance, and standard deviation <span class="hl kwa">for</span> the variable **mpg** and assign them into variable names m, v, and s. Report the results <span class="hl kwa">in</span> the print statement.
+
+```{r}
+<span class="hl com"># Enter your code here!</span>
+m = <span class="hl kwd">mean</span>(mtcars$mpg)
+v = <span class="hl kwd">var</span>(mtcars$mpg)
+s = <span class="hl kwd">sd</span>(mtcars$mpg)
+
+<span class="hl kwd">print</span>(m) 
+<span class="hl kwd">print</span>(v) 
+<span class="hl kwd">print</span>(s)
+
+# <span class="hl kwd">print</span>(<span class="hl kwd">paste</span>(<span class="hl sng">&quot;The average of Mile Per Gallon from this data set is &quot;</span>,  , <span class="hl sng">&quot; with variance &quot;</span>,  , <span class="hl sng">&quot; and standard deviation&quot;</span>,  , <span class="hl sng">&quot;.&quot;</span>))
+```
+<span class="hl kwd">print</span>(<span class="hl kwd">paste</span>(<span class="hl sng">&quot;The average of Mile Per Gallon from this data set is &quot;</span>, m , <span class="hl sng">&quot; with variance &quot;</span>, v , <span class="hl sng">&quot; and standard deviation&quot;</span>, s , <span class="hl sng">&quot;.&quot;</span>))
+
+
+d. Create two tables to summarize 1) average mpg <span class="hl kwa">for</span> each cylinder class and 2) the standard deviation of mpg <span class="hl kwa">for</span> each gear class.
+
+```{r}
+<span class="hl com"># Enter your code here! </span>
+<span class="hl kwd">library</span>(dplyr)
+cyl_mpg &lt;- <span class="hl kwd"><span class="hl kwa">function</span></span>(mtcars, cyl, mpg) {
+  <span class="hl kwd">library</span>(dplyr)
+  mean_table &lt;- mtcars %&gt;% 
+    <span class="hl kwd">group_by</span>(!!<span class="hl kwd">sym</span>(cyl)) %&gt;%
+    <span class="hl kwd">summarise</span>(Mean = <span class="hl kwd">mean</span>(!!<span class="hl kwd">sym</span>(mpg), na.rm = <span class="hl kwa">TRUE</span>))
+
+  
+  <span class="hl kwd">return</span>(mean_table)
+}
+a_mpg &lt;- <span class="hl kwd">cyl_mpg</span>(mtcars, <span class="hl sng">&quot;gears&quot;</span>, <span class="hl sng">&quot;mpg&quot;</span>)
+
+<span class="hl kwd">print</span>(a_mpg)
+
+gear_mpg &lt;- <span class="hl kwd"><span class="hl kwa">function</span></span>(mtcars, gear, mpg) {
+  std_table &lt;- mtcars %&gt;% 
+    <span class="hl kwd">group_by</span>(!!<span class="hl kwd">sym</span>(gear)) %&gt;%
+    <span class="hl kwd">summarise</span>(std = <span class="hl kwd">sd</span>(!!<span class="hl kwd">sym</span>(mpg), na.rm = <span class="hl kwa">TRUE</span>))
+  
+  
+  <span class="hl kwd">return</span>(std_table)
+}
+std_mpg &lt;- <span class="hl kwd">gear_mpg</span>(mtcars, <span class="hl sng">&quot;gear&quot;</span>, <span class="hl sng">&quot;mpg&quot;</span>)
+
+<span class="hl kwd">print</span>(std_mpg)
+```
+e. Create a crosstab that shows the number of observations belong to each cylinder and gear class combinations. The table should show how many observations given the car has 4 cylinders with 3 gears, 4 cylinders with 4 gears, etc. Report which combination is recorded <span class="hl kwa">in</span> this data set and how many observations <span class="hl kwa">for</span> this type of car.
+
+```{r}
+<span class="hl com"># Enter your code here!</span>
+
+cyl_gear &lt;- <span class="hl kwd">table</span>(mtcars$cyl, mtcars$gear)
+
+<span class="hl kwd">print</span>(cyl_gear)
+
+max_frequency &lt;- <span class="hl kwd">max</span>(cyl_gear)
+most_frequent &lt;- <span class="hl kwd">which</span>(cyl_gear == max_frequency, arr.ind = <span class="hl kwa">TRUE</span>)
+
+cyl_max &lt;- <span class="hl kwd">as.numeric</span>(<span class="hl kwd">rownames</span>(cyl_gear)[most_frequent[1, 1]])
+gear_max &lt;- <span class="hl kwd">as.numeric</span>(<span class="hl kwd">colnames</span>(cyl_gear)[most_frequent[1, 2]])
+
+
+<span class="hl kwd">cat</span>(<span class="hl sng">&quot;The most common car type <span class="hl kwa">in</span> this data set is a car with&quot;</span> , cyl_max, <span class="hl sng">&quot;cylinders and&quot;</span>, gear_max,<span class="hl sng">&quot;gears. There are total of&quot;</span>, max_frequency, <span class="hl sng">&quot;cars belonging to this specification <span class="hl kwa">in</span> the data set.&quot;</span>)
+```
+
+*** 
+  
+  <span class="hl com">### Question 2</span>
+  
+  Use different visualization tools to summarize the data sets <span class="hl kwa">in</span> this question.
+
+a. Using the **PlantGrowth** data set, visualize and compare the weight of the plant <span class="hl kwa">in</span> the three separated group. Give labels to the title, x-axis, and y-axis on the graph. Write a paragraph to summarize your findings.
+
+```{r}
+<span class="hl com"># Load the data set</span>
+<span class="hl kwd">data</span>(<span class="hl sng">&quot;PlantGrowth&quot;</span>)
+
+<span class="hl com"># Head of the data set</span>
+<span class="hl kwd">head</span>(PlantGrowth)
+
+<span class="hl com"># Enter your code here!</span>
+
+<span class="hl kwd">library</span>(ggplot2)
+
+weight_dif &lt;- <span class="hl kwd">ggplot</span>(PlantGrowth, <span class="hl kwd">aes</span>(x= group, y= weight, fill = group)) + <span class="hl kwd">geom_boxplot</span>() + <span class="hl kwd">labs</span>(title = <span class="hl sng">&quot;Weight across various plant groups&quot;</span>, x = <span class="hl sng">&quot;group&quot;</span>, y = <span class="hl sng">&quot;weight&quot;</span>) + <span class="hl kwd">theme_minimal</span>()
+group_stats &lt;- PlantGrowth %&gt;%
+  <span class="hl kwd">group_by</span>(group) %&gt;%
+  <span class="hl kwd">summarise</span>(
+    mean = <span class="hl kwd">mean</span>(weight),
+    median = <span class="hl kwd">median</span>(weight),
+    min = <span class="hl kwd">min</span>(weight),
+    max = <span class="hl kwd">max</span>(weight),
+    sd = <span class="hl kwd">sd</span>(weight) )
+    
+<span class="hl kwd">View</span>(group_stats)
+```
+
+Result:
+  
+  =&gt; Report a paragraph to summarize your findings from the plot!
+ 
+   <span class="hl com">### Using the ggplot2 package, we are able to generate a box-plot of the various weights corresponding</span>
+  <span class="hl com">### to the three different plant groups: Ctrl, Trt1, and Trt2. The Trt2 group leads the other groups <span class="hl kwa">in</span> the </span>
+  <span class="hl com">### weight category with the highest measurements regarding maximum, minimum, median, and mean. Below this is </span>
+  <span class="hl com">### the ctrl group ranking <span class="hl kwa">in</span> the middle of the pack out of the three groups. Lastly the trt1 group maintains </span>
+  <span class="hl com">### the lowest measurements out of the three. Additionally, trt1 has the greatest deviation compared to the rest </span>
+  <span class="hl com">### of the group, sitting at a 0.8. This is followed by ctrl, 0.6, and then by trt2, 0.44.This massive deviation <span class="hl kwa">in</span> </span>
+  <span class="hl com">### trt1 can however be attributed be attributed to the outliers that exist <span class="hl kwa">in</span> upper bound of trt1, skewing some </span>
+  <span class="hl com">### of our statistics. ctrl and trt2 exhibit no outliers. Looking at the weight distributions excluding any outliers, </span>
+  <span class="hl com">### it appears the ctrl group has a greater span of weights, <span class="hl kwa">while</span> trt2 and trt1 are more narrowly distributed.</span>
+  
+  b. Using the **mtcars** data set, plot the histogram <span class="hl kwa">for</span> the column **mpg** with 10 breaks. Give labels to the title, x-axis, and y-axis on the graph. Report the most observed mpg class from the data set.
+
+```{r}
+
+mpg_dif &lt;- <span class="hl kwd">ggplot</span>(mtcars, <span class="hl kwd">aes</span>(x = mpg, fill = mpg)) + <span class="hl kwd">geom_histogram</span>() + <span class="hl kwd">labs</span>(title = <span class="hl sng">&quot;Frequency Distribution of MPG&quot;</span>, x = <span class="hl sng">&quot;MPG&quot;</span>, y = <span class="hl sng">&quot;Frequency&quot;</span>) + <span class="hl kwd">theme_minimal</span>()
+<span class="hl kwd">print</span>(mpg_dif)
+
+mpg_bins &lt;- <span class="hl kwd">seq</span>(<span class="hl kwd">min</span>(mtcars$mpg), <span class="hl kwd">max</span>(mtcars$mpg), length.out = 10)
+mpg_freq_table &lt;- <span class="hl kwd">hist</span>(mtcars$mpg, breaks = mpg_bins, plot = <span class="hl kwa">FALSE</span>)
+
+mpg_freq &lt;- <span class="hl kwd">data.frame</span>(
+  mpg = mpg_bins[-<span class="hl kwd">length</span>(mpg_bins)] + binwidth_value / 2, 
+  frequency = mpg_freq_table$counts)
+max_mpg_freq &lt;- <span class="hl kwd">max</span>(mpg_freq$frequency)
+
+most_frequent_mpg &lt;- mpg_freq %&gt;%
+  <span class="hl kwd">filter</span>(frequency == max_mpg_freq)
+
+max_mpg &lt;- most_frequent_mpg$mpg
+
+max_mpg &lt;- max_mpg[1]
+<span class="hl kwd">print</span>(max_mpg)
+
+<span class="hl kwd">print</span>(<span class="hl kwd">paste</span>(<span class="hl sng">&quot;Most of the cars <span class="hl kwa">in</span> this data set are <span class="hl kwa">in</span> the class of&quot;</span>, max_mpg, <span class="hl sng">&quot;miles per gallon.&quot;</span>))
+```
+
+c. Using the **USArrests** data set, create a pairs plot to display the correlations between the variables <span class="hl kwa">in</span> the data set. Plot the scatter plot with **Murder** and **Assault**. Give labels to the title, x-axis, and y-axis on the graph. Write a paragraph to summarize your results from both plots.
+
+```{r}
+<span class="hl com"># Load the data set</span>
+<span class="hl kwd">data</span>(<span class="hl sng">&quot;USArrests&quot;</span>)
+
+<span class="hl com"># Head of the data set</span>
+<span class="hl kwd">head</span>(USArrests)
+
+<span class="hl com"># Enter your code here!</span>
+<span class="hl kwd">install.packages</span>(<span class="hl sng">&quot;GGally&quot;</span>)
+<span class="hl kwd">library</span>(GGally)
+
+<span class="hl kwd">ggpairs</span>(USArrests,
+        columns = <span class="hl kwd">c</span>(<span class="hl sng">&quot;Murder&quot;</span>, <span class="hl sng">&quot;Assault&quot;</span>))
+  <span class="hl kwd">ggtitle</span>(<span class="hl sng">&quot;Murder vs. Assault&quot;</span>)
+  <span class="hl kwd">labs</span>(x = <span class="hl sng">&quot;Murder Rate&quot;</span>, y = <span class="hl sng">&quot;Assault Rate&quot;</span>)
+  
+<span class="hl kwd">mean</span>(USArrests$Murder)
+<span class="hl kwd">mean</span>(USArrests$Assault)
+<span class="hl kwd">sd</span>(USArrests$Murder)
+<span class="hl kwd">sd</span>(USArrests$Assault)
+```
+
+Result:
+  
+  =&gt; Report a paragraph to summarize your findings from the plot!
+  
+  <span class="hl com">### The correlation graph <span class="hl kwa">in</span> the bottom left depicts a positive relationship between the variables Murder and Assault.</span>
+  <span class="hl com">### The value <span class="hl kwa">for</span> this correlation <span class="hl kwa">in</span> the top right,+0.802, indicates a strong relationship exists between the variables.</span>
+  <span class="hl com">### Therefore it can be said that as murders go up, so do assaults. The graphs <span class="hl kwa">in</span> the top left corner and bottom right  </span>
+  <span class="hl com">### corner shows the correlation between as the distribution of observations is allowed to vary. These graphs show that</span>
+  <span class="hl com">### the strongest relationship exists around 5 murders and 120 Assaults. As these observations increase their correlative </span>
+  <span class="hl com">### features begin to drop off. Additionally, the mean <span class="hl kwa">for</span> Murders is 7.8 <span class="hl kwa">while</span> the mean <span class="hl kwa">for</span> Assault is 170.8. Considering </span>
+  <span class="hl com">### that these statistics are near the correlation graphs peaks, this justifies a majority of the data is distributed near the</span>
+  <span class="hl com">### center of correlation.</span>
+  
+  
+  ***
+  
+  <span class="hl com">### Question 3</span>
+  
+  Download the housing data set from www.jaredlander.com and find out what explains the housing prices <span class="hl kwa">in</span> New York City.
+
+Note: Check your working directory to make sure that you can download the data into the data folder. 
+<span class="hl kwd"><span class="hl kwa">if</span></span> (!<span class="hl kwd">dir.exists</span>(<span class="hl sng">&quot;data&quot;</span>)) {
+  <span class="hl kwd">dir.create</span>(<span class="hl sng">&quot;data&quot;</span>)
+}
+```{r, echo=<span class="hl kwa">FALSE</span>}
+<span class="hl com"># Load and clean the housing data set </span>
+<span class="hl kwd">download.file</span>(url=<span class="hl sng">'https://www.jaredlander.com/data/housing.csv'</span>,
+              destfile=<span class="hl sng">'data/housing.csv'</span>, mode=<span class="hl sng">'wb'</span>)
+housingData &lt;- <span class="hl kwd">read.csv</span>(<span class="hl sng">'data/housing.csv'</span>)
+housingData &lt;- <span class="hl kwd">subset</span>(housingData, 
+                      select = <span class="hl kwd">c</span>(<span class="hl sng">&quot;Neighborhood&quot;</span>, <span class="hl sng">&quot;Market.Value.per.SqFt&quot;</span>, <span class="hl sng">&quot;Boro&quot;</span>, <span class="hl sng">&quot;Year.Built&quot;</span>))
+housingData &lt;- <span class="hl kwd">na.omit</span>(housingData)                   
+```
+
+a. Create your own descriptive statistics and aggregation tables to summarize the data set and find any meaningful results between different variables <span class="hl kwa">in</span> the data set.
+```{r}
+<span class="hl com"># Head of the cleaned data set</span>
+<span class="hl kwd">head</span>(housingData)
+
+<span class="hl com"># Enter your code here!</span>
+
+<span class="hl kwd">summary</span>(housingData)
+<span class="hl kwd">library</span>(ggplot2)
+<span class="hl kwd">library</span>(dplyr)
+
+housingData &lt;- housingData %&gt;%
+  <span class="hl kwd">mutate</span>(Year.Range = <span class="hl kwd">case_when</span>(
+    Year.Built &lt; 1900 ~ <span class="hl sng">&quot;Before 1900&quot;</span>,
+    Year.Built &gt;= 1900 &amp; Year.Built &lt; 1950 ~ <span class="hl sng">&quot;1900-1949&quot;</span>,
+    Year.Built &gt;= 1950 &amp; Year.Built &lt; 2000 ~ <span class="hl sng">&quot;1950-1999&quot;</span>,
+    Year.Built &gt;= 2000 ~ <span class="hl sng">&quot;2000 Onward&quot;</span>
+  ))
+
+<span class="hl kwd">ggplot</span>(housingData, <span class="hl kwd">aes</span>(x = Year.Range, y = Market.Value.per.SqFt, fill = Boro)) +
+  <span class="hl kwd">geom_boxplot</span>() + 
+  <span class="hl kwd">labs</span>(title = <span class="hl sng">&quot;Market Value per square foot across different neighborhoods and years&quot;</span>,
+     x= <span class="hl sng">&quot;Year&quot;</span>,
+     y = <span class="hl sng">&quot;Market Value&quot;</span>) +
+    <span class="hl kwd">scale_y_continuous</span>(
+      breaks = <span class="hl kwd">seq</span>(0, <span class="hl kwd">max</span>(housingData$Market.Value.per.SqFt, na.rm = <span class="hl kwa">TRUE</span>), by = 100),
+      minor_breaks = <span class="hl kwd">seq</span>(0, <span class="hl kwd">max</span>(housingData$Market.Value.per.SqFt, na.rm = <span class="hl kwa">TRUE</span>), by = 25)
+      ) +
+<span class="hl kwd">theme_minimal</span>() +
+  <span class="hl kwd">theme</span>(legend.position = <span class="hl sng">&quot;bottom&quot;</span>)
+
+```
+
+b. Create multiple plots to demonstrates the correlations between different variables. Remember to label all axes and give title to each graph.
+
+```{r}
+<span class="hl com"># Enter your code here!</span>
+<span class="hl com">#Household income ranked by boro 1 being least and 5 being highest</span>
+# Bronx    <span class="hl kwd">43540</span>        (1)
+# Brooklyn   <span class="hl kwd">56340</span>     (2)
+# Manhattan    <span class="hl kwd">85330</span>   (4)
+# Queens    <span class="hl kwd">70930</span>      (3)
+# Staten Island  <span class="hl kwd">94330</span>  (5)
+
+boro_mapping &lt;- <span class="hl kwd">c</span>(<span class="hl sng">&quot;Bronx&quot;</span>=1,<span class="hl sng">&quot;Brooklyn&quot;</span>=2,<span class="hl sng">&quot;Manhattan&quot;</span>=4,<span class="hl sng">&quot;Queens&quot;</span>=3,<span class="hl sng">&quot;Staten Island&quot;</span>=5)
+housingData$BoroNumber &lt;- boro_mapping[<span class="hl kwd">as.character</span>(housingData$Boro)]
+
+neighborhood_mapping &lt;- housingData %&gt;%
+  <span class="hl kwd">distinct</span>(Neighborhood) %&gt;%
+  <span class="hl kwd">mutate</span>(NeighborhoodID = <span class="hl kwd">row_number</span>())
+housingData &lt;- housingData %&gt;%
+  <span class="hl kwd">left_join</span>(neighborhood_mapping, by = <span class="hl sng">&quot;Neighborhood&quot;</span>)
+
+<span class="hl kwd">print</span>(housingData)
+
+numeric_data &lt;- housingData[, <span class="hl kwd">c</span>(<span class="hl sng">&quot;Year.Built&quot;</span>,<span class="hl sng">&quot;Market.Value.per.SqFt&quot;</span>,<span class="hl sng">&quot;BoroNumber&quot;</span>)]
+cor_housing &lt;- <span class="hl kwd">cor</span>(numeric_data, use = <span class="hl sng">&quot;complete.obs&quot;</span>)
+<span class="hl kwd">print</span>(cor_housing)
+
+<span class="hl kwd">install.packages</span>(<span class="hl sng">&quot;ggplot2&quot;</span>)
+<span class="hl kwd">install.packages</span>(<span class="hl sng">&quot;reshape2&quot;</span>)
+<span class="hl kwd">library</span>(ggplot2)
+<span class="hl kwd">library</span>(reshape2)
+
+cor_melted &lt;- <span class="hl kwd">melt</span>(cor_housing) 
+
+<span class="hl kwd">ggplot</span>(cor_melted, <span class="hl kwd">aes</span>(Var1, Var2, fill = value)) +
+  <span class="hl kwd">geom_tile</span>() +
+  <span class="hl kwd">scale_fill_gradient2</span>(low = <span class="hl sng">&quot;red&quot;</span>, high = <span class="hl sng">&quot;green&quot;</span>, mid = <span class="hl sng">&quot;yellow&quot;</span>, 
+                       midpoint = 0, limit = <span class="hl kwd">c</span>(-1, 1), name = <span class="hl sng">&quot;Correlation&quot;</span>) +
+  <span class="hl kwd">theme_minimal</span>() +
+  <span class="hl kwd">labs</span>(title = <span class="hl sng">&quot;Correlation Heatmap&quot;</span>, x = <span class="hl sng">&quot;Variables&quot;</span>, y = <span class="hl sng">&quot;Variables&quot;</span>) +
+  <span class="hl kwd">theme</span>(axis.text.x = <span class="hl kwd">element_text</span>(angle = 45, hjust = 1))
+
+```
+
+c. Write a summary about your findings from this exercise.
+
+<span class="hl com">#In an attempt to understand the data more, I built a plot observing the market </span>
+<span class="hl com">#value per square foot across different years and boros of New York City. Using </span>
+<span class="hl com">#box-plots, the five distinct boros of New York and their respective neighborhoods</span>
+<span class="hl com">#were documented across the time periods Before 1900, 1900-1949, 1950-1999, and 2000</span>
+<span class="hl com">#onward. </span>
+
+<span class="hl com">#Market Value based on year built shows not much trend across different time periods. This is</span>
+<span class="hl com">#important to note statistically because the data shows it does not necessarily matter as much <span class="hl kwa">in</span> </span>
+#most cases <span class="hl sng">&quot;when&quot;</span> your house was built but rather <span class="hl sng">&quot;where&quot;</span>. This takes us to the <span class="hl kwa">next</span> relationship
+<span class="hl com">#<span class="hl kwa">in</span> the graphic which compares the market values across differing boros. </span>
+
+<span class="hl com">#When looking at the middle 50% of neighborhoods across all years, the expected variation, </span>
+<span class="hl com">#and exclusion of outliers, results showed:</span>
+  
+<span class="hl com">#  Manhattan as the leading Boro <span class="hl kwa">in</span> terms of Market Value across all years. However, Manhattan</span>
+<span class="hl com">#  also posesses the greatest range of variation <span class="hl kwa">in</span> market value, sometimes overlapping entirely </span>
+<span class="hl com">#  with other boros. Considering no outliers, the minimum is around $25/sqft and the max is </span>
+<span class="hl com">#  around $365/sqft. the IQR sits between $115/sqft and $240/sqft. </span>
+  
+<span class="hl com">#  Brooklyn <span class="hl kwa">in</span> a majority of cases across year built comes <span class="hl kwa">in</span> second. The only exception would</span>
+<span class="hl com">#  be with houses built <span class="hl kwa">in</span> 2000 and onward where it comes <span class="hl kwa">in</span> third. The max extends up to $140/sqft</span>
+<span class="hl com">#  and the minimum goes down to $20/sqft. regarding IQR, Brooklyn stays between $50/sqft and$90/sqft.</span>
+  
+<span class="hl com">#  Queens comes <span class="hl kwa">in</span> third <span class="hl kwa">in</span> terms of market value, except <span class="hl kwa">for</span> homes built 2000 and onward where it comes</span>
+<span class="hl com">#  <span class="hl kwa">in</span> second. Interestingly enough, Queens exhibits the only noticeable shift <span class="hl kwa">in</span> market value once reaching </span>
+<span class="hl com">#  the year 2000. The max and min <span class="hl kwa">for</span> Queen sits between $40/sqft and $135/sqft. This is partly due to </span>
+<span class="hl com">#  the massive jump, <span class="hl kwa">if</span> Queens stuck with its other time periods it might be sub 100 <span class="hl kwa">in</span> this category</span>
+  
+<span class="hl com">#  Bronx is <span class="hl kwa">next</span> on the list coming <span class="hl kwa">in</span> at fourth <span class="hl kwa">in</span> terms of market value. The Max and Min are $25/sqft and</span>
+<span class="hl com">#  $85/sq ft, <span class="hl kwa">while</span> the IQR is $30/sqft to $60/sqft. Staten Island, which when observing the plot does not </span>
+<span class="hl com">#  have many neighborhoods, is similar <span class="hl kwa">in</span> market value to the Bronx. It stations itself right around the </span>
+<span class="hl com">#  median market value which is around $35/sqft to $50/sqft.</span>
+  
+<span class="hl com">#Additionally, correlations can be found <span class="hl kwa">in</span> the relationship between market value and boro. Prior to cross</span>
+<span class="hl com">#examining the three variables Market Value per square foot, Year Built, and Boro, i needed to convert Boro</span>
+<span class="hl com">#into a numerical value to simplify the analysis. However, one cannot vaguely assign these categorical, rather</span>
+<span class="hl com">#there must be meaning behind it assignment <span class="hl kwa">in</span> order to find at least some correlative aspects. So, I used the </span>
+<span class="hl com">#median household income from 2010 of each respective boro as a ranking, with 1 being the lowest and 5 being the </span>
+<span class="hl com">#highest. </span>
+
+<span class="hl com">#The following order emerged: (1) Bronx, (2) Brooklyn, (3) Queens, (4) Manhattan, (5) Staten Island. Currently </span>
+<span class="hl com">#Manhattan surpassed Staten Island <span class="hl kwa">for</span> Median Income. But, to go along with the data I chose income information</span>
+<span class="hl com">#on the the most recent build year <span class="hl kwa">in</span> the data set which was 2010. Within the correlation matrix and corresponding </span>
+<span class="hl com">#heatmap, Market Value and Boro are depicted to have a moderately positive correlation. This means as you go up <span class="hl kwa">in</span> </span>
+<span class="hl com">#Median Household Income you can expect an increase <span class="hl kwa">in</span> Market Value Per Square foot. When observing Market Value and</span>
+<span class="hl com">#Year built, the correlation is weak, thus implying no strong relationship between the two variables. This confirms </span>
+#my earlier hypothesis that it does not necessarily depend on <span class="hl sng">&quot;when&quot;</span> your house was built but rather <span class="hl sng">&quot;where&quot;</span> it was built.
+
+<span class="hl com">#In Conclusion, this research provides insight on the Housing Market of New York City and the relationship Market Value </span>
+<span class="hl com">#per square foot has with the native boros the city finds itself split into and the years they were built. Bringing <span class="hl kwa">in</span> </span>
+<span class="hl com">#outside information on median household <span class="hl kwa">in</span> section c gives greater purpose to the numerical ranking each boro has. </span>
+<span class="hl com">#This enables categorical data to be more efficiently observed <span class="hl kwa">in</span> correlative terms. Statistically, the box plots <span class="hl kwa">in</span></span>
+<span class="hl com">#section a provide great depth on the distribution of market values across various neighborhoods <span class="hl kwa">in</span> different boros.</span>
+<span class="hl com">#Breaking it down into its constitutent data relationships was key to understanding what variables play a part <span class="hl kwa">in</span> </span>
+<span class="hl com">#market value.</span>
+
+=&gt; Enter your answer here!
+</pre></div>
+<div class="error"><pre class="knitr r">## Error in parse(text = input): attempt to use zero-length variable name
+</pre></div>
+</div></div>
